@@ -232,6 +232,6 @@ def start_training():
 #x = x[0]
 #print x.shape
 
-#model = createVGG16()
+model = start_training()
 #preds = model.predict(x)
 #print decode_predictions(preds)
