@@ -202,19 +202,21 @@ def start_training():
     vocab_size = 43
     max_cap_len = 10
 
+    partial_caps, next_words, max_cap_len, vocab_size = loadCaps(max_cap_len, vocab_size)
+    print 'LOADED CAPTIONS'
+
     model = createModel(vocab_size, max_cap_len)
 
     print 'LOADED COMBINED MODULE'
 
     images = loadImgs()
     print 'LOADED IMAGES'
-    partial_caps, next_words = loadCaps(max_cap_len,vocab_size)
-    print 'LOADED CAPTIONS'
+
     print 'STARTING TRAINING'
-    model.fit([images, partial_caps], next_words, batch_size=1, nb_epoch=10, verbose=2)
+    model.fit([images, partial_caps], next_words, batch_size=128, nb_epoch=100, verbose=2)
     print 'TRAINING COMPLETE'
-    model.save('Models/WholeModel.hdf5', overwrite=True)
-    model.save_weights('Models/Weights.h5',overwrite=True)
+    model.save('WholeModel.hdf5', overwrite=True)
+    model.save_weights('ModelWeights.h5',overwrite=True)
 
     return model
 
