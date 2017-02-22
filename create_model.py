@@ -3,10 +3,14 @@ import pandas as pd
 from keras.models import Sequential, load_model
 from keras.layers import LSTM, Embedding, GRU, TimeDistributed, Dense, RepeatVector, Merge, Activation, ZeroPadding2D, Convolution2D, MaxPooling2D, Flatten, Dropout
 from keras.preprocessing import image, sequence
+from keras.applications import VGG16
 from keras.applications.vgg16 import preprocess_input, decode_predictions
 
 
 def createVGG16():
+    model = VGG16()
+    model.save_weights('VGG16.h5')
+
     model = Sequential()
     model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 3)))
     model.add(Convolution2D(64, 3, 3, activation='relu'))
