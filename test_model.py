@@ -1,4 +1,4 @@
-from keras.models import load_model
+from keras.models import load_model, Sequential
 from keras.preprocessing import sequence
 from keras.preprocessing import image
 import numpy as np
@@ -23,9 +23,16 @@ def loadCaps(index,partial_caps, max_cap_len, first=False):
 def find_max(preds):
     return np.argmax(preds)
 
-# LOAD MODEL
-model = create_model.start_training()
+def load_model_test1():
+    model = create_model.createModel(43,10,True)
+    model.load_weights('Models/Weights.h5', by_name=True)
+    print 'MODEL LOAD TEST 1 SUCCESSFUL'
+    return model
 
+# LOAD MODEL
+#model = create_model.start_training()
+#model = load_model('Models/model.hdf5')
+model = load_model_test1()
 # GENERATE TEST PARTIAL CAPS
 max_cap_len = 10
 partial_caps = [[1]]
