@@ -24,7 +24,7 @@ def find_max(preds):
     return np.argmax(preds)
 
 def load_model_test1():
-    model = create_model.createModel(43,10,True)
+    model = create_model.ImageCaptioner().create_model(True)
     model.load_weights('Models/Weights.h5', by_name=True)
     print 'MODEL LOAD TEST 1 SUCCESSFUL'
     return model
@@ -47,7 +47,7 @@ images = np.asarray(images)
 preds = model.predict([images, testcaps], verbose=1)
 # FIND INDEX OF MOST PROBABLE WORD
 index = find_max(preds[0])
-word = create_model.get_caps(10,43,index)
+word = create_model.ImageCaptioner().get_word(index)
 caption = word
 print "FIRST WORD:"+word
 
@@ -60,7 +60,7 @@ while(True):
     partial_caps, testcaps = loadCaps(index, partial_caps, max_cap_len)
     preds = model.predict([images, testcaps], verbose=1)
     index = find_max(preds[0])
-    word = create_model.get_caps(10, 43, index)
+    word = create_model.ImageCaptioner().get_caps(index)
     print word
     print partial_caps
     j+=1
