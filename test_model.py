@@ -23,22 +23,21 @@ def loadCaps(index,partial_caps, max_cap_len, first=False):
 def find_max(preds):
     return np.argmax(preds)
 
-def load_model_test1():
-    model = create_model.ImageCaptioner().create_model(True)
-    model.load_weights('Models/Weights.h5', by_name=True)
-    print 'MODEL LOAD TEST 1 SUCCESSFUL'
-    return model
-
 # LOAD MODEL
 #model = create_model.start_training()
-#model = load_model('Models/model.hdf5')
-model = load_model_test1()
+print 'LOADING MODEL'
+obj = create_model.ImageCaptioner()
+obj.loadCaps(True)
+model = obj.create_model(True)
+model.load_weights('Models/Weights.h5', by_name = True)
+print 'MODEL LOADED'
+#model = load_model('Models/new.h5')
 # GENERATE TEST PARTIAL CAPS
-max_cap_len = 10
+max_cap_len = obj.max_cap_len
 partial_caps = [[1]]
 partial_caps, testcaps = loadCaps(None, partial_caps, max_cap_len, True)
 # LOAD TEST IMAGE
-img = 'Pics/img1.jpg'
+img = 'Flicker8k_Dataset/2513260012_03d33305cf.jpg'
 images = []
 i = image.load_img(img, target_size=(224,224))
 x = image.img_to_array(i)
@@ -47,7 +46,7 @@ images = np.asarray(images)
 preds = model.predict([images, testcaps], verbose=1)
 # FIND INDEX OF MOST PROBABLE WORD
 index = find_max(preds[0])
-word = create_model.ImageCaptioner().get_word(index)
+word = obj.get_word(index)
 caption = word
 print "FIRST WORD:"+word
 
@@ -60,7 +59,7 @@ while(True):
     partial_caps, testcaps = loadCaps(index, partial_caps, max_cap_len)
     preds = model.predict([images, testcaps], verbose=1)
     index = find_max(preds[0])
-    word = create_model.ImageCaptioner().get_caps(index)
+    word = obj.get_word(index)
     print word
     print partial_caps
     j+=1
