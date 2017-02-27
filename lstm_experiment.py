@@ -3,6 +3,7 @@ from keras.layers import LSTM, Dense, Dropout
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 import numpy as np
+import sys
 
 file = 'alice.txt'
 text = open(file).read()
@@ -38,4 +39,25 @@ model.compile(loss='categorical_crossentropy', optimizer='adam')
 file = 'weights-improvement-{epoch:02d}-{loss:.4f}.hdf5'
 checkpoint = ModelCheckpoint(file,monitor='loss',verbose=1,save_best_only=True,mode='min')
 callbacks_list = [checkpoint]
-model.fit(X,y,nb_epoch=20,batch_size=256,callbacks=callbacks_list)
+#model.fit(X,y,nb_epoch=20,batch_size=256,callbacks=callbacks_list)
+model.load_weights('weights-improvement-19-2.0474.hdf5')
+model.compile(loss='categorical_crossentropy', optimizer='adam')
+int_to_char = dict((i, c) for i, c in enumerate(chars))
+# pick a random seed
+start = np.random.randint(0, len(dataX)-1)
+pattern = dataX[start]
+print "Seed:"
+print "\"", ''.join([int_to_char[value] for value in pattern]), "\""
+# generate characters
+for i in range(1000):
+    x = np.reshape(pattern, (1, len(pattern), 1))
+    x = x / float(n_vocab)
+    prediction = model.predict(x, verbose=0)
+    print prediction
+    index = np.argmax(prediction)
+    result = int_to_char[index]
+    seq_in = [int_to_char[value] for value in pattern]
+    sys.stdout.write(result)
+    pattern.append(index)
+    pattern = pattern[1:len(pattern)]
+print "\nDone."
