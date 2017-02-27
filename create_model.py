@@ -16,7 +16,7 @@ class ImageCaptioner():
         self.word_index = {}
         self.imgs = []
 
-    def loadCaps(self):
+    def loadCaps(self, get_max_len = False):
         '''
         THIS FUNCTION IS USED TO LOAD CAPTIONS
         :SETS:
@@ -73,6 +73,8 @@ class ImageCaptioner():
                 max = len(i)
         self.max_cap_len = max
         self.vocab_size = len(unique)
+        if(get_max_len):
+            return
         # TRANSFORMING PARTIAL_CAPS INTO A SEQUENCE OF TIME-STEPS
         self.partial_caps = sequence.pad_sequences(self.partial_caps, maxlen=self.max_cap_len, padding='post')
         #print partial_caps
