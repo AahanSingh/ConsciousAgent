@@ -23,6 +23,9 @@ def build_dataset():
     with open('dataset.txt', 'wb') as file:
         for i, w in enumerate(dataset):
             file.write("%s\t%s\n" % (w[0][:-2], w[1].lower()))
+    with open('train_images.txt', 'wb') as file:
+        for i, w in enumerate(dataset):
+            file.write("Flicker8k_Dataset/%s\n" % (w[0][:-2]))
     print 'DATASET SAVED'
     return dataset
 
