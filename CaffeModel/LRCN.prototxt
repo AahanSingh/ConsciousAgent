@@ -8,7 +8,7 @@ layer {
   type: "ImageData"
   top: "data"
   top: "label"
-  include { phase: TRAIN}
+  include { phase: TRAIN }
   transform_param {
     mirror: true
     crop_size:224
@@ -30,13 +30,53 @@ layer{
   top: "input"
   top: "target"
   top: "clip"
-  include: {phase: TRAIN}
+  include: { phase: TRAIN }
   hdf5_data_param {
     source: "train_captions.txt"
     batch_size: 100
   }
 }
 
+# TEST ON TRAIN
+layer {
+  name: "image_data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include { 
+    phase: TEST
+    stage: "test-on-train"
+  }
+  transform_param {
+    mirror: true
+    crop_size:224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  image_data_param {
+  source: "train_images.txt"
+  batch_size: 100
+  new_height: 256
+  new_width: 256
+  }
+}
+# captions
+layer{
+  name: "caption_data"
+  type: "HDF5Data"
+  top: "input"
+  top: "target"
+  top: "clip"
+  include: {
+    phase: TEST
+    stage: "test-on-train"
+  }
+  hdf5_data_param {
+    source: "train_captions.txt"
+    batch_size: 100
+  }
+}
 
 layer {
   name: "silence"
@@ -499,5 +539,17 @@ layer {
   }
   softmax_param {
     axis:2
+  }
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "predict"
+  bottom: "target"
+  top: "accuracy"
+  include { phase: TEST }
+  accuracy_param {
+    axis: 2
+    ignore_label: -1
   }
 }
