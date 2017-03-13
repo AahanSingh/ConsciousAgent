@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 from keras.models import Sequential
-from keras.layers import LSTM, Embedding, TimeDistributed, Dense, RepeatVector, Merge, Activation, ZeroPadding2D, Convolution2D, MaxPooling2D, Flatten, Dropout
+from keras.layers import LSTM, Embedding, TimeDistributed, Dense, RepeatVector, Merge, Activation, ZeroPadding2D, Convolution2D, MaxPooling2D, Flatten, Dropout, Input
 from keras.preprocessing import image, sequence
 from keras.applications import VGG16
+from keras.callbacks import ModelCheckpoint
+from keras.utils.visualize_util import plot
 
 class ImageCaptioner():
 
@@ -41,12 +43,12 @@ class ImageCaptioner():
 
 
 
-        '''
+
         #UNCOMMENT TO TEST
         caps = ['<START> An artist playing the violin <END>', '<START> A motorcycle situated along the highway <END>',
                 '<START> A cowboy riding his horse in the desert . <END>', '<START> Tourist taking pictures <END>']
         nb_samples = 4
-        '''
+
 
         words = [txt.split() for txt in caps]
         unique = []
@@ -92,8 +94,8 @@ class ImageCaptioner():
         THIS FUNCTION IS USED TO GET THE IMAGE LOCATION VECTOR
         '''
         # UNCOMMENT FOR TESTING
-        #self.imgs = ['Pics/img1.jpg', 'Pics/img2.jpg', 'Pics/img3.jpg', 'Pics/img4.jpg']
-        #return
+        self.imgs = ['Pics/img1.jpg', 'Pics/img2.jpg', 'Pics/img3.jpg', 'Pics/img4.jpg']
+        return
 
         df = pd.read_csv('training.txt', delimiter='\t')
         nb_samples = df.shape[0]
@@ -114,8 +116,8 @@ class ImageCaptioner():
         :return: IMAGES
         '''
         # UNCOMMENT FOR TESTING
-        #l=0
-        #u=4
+        l=0
+        u=4
 
         self.get_img_locn()
         temp_imgs = self.imgs[l:u]
@@ -143,50 +145,55 @@ class ImageCaptioner():
             model.save_weights('VGG16.h5')
 
         model = Sequential()
-        model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 3)))
-        model.add(Convolution2D(64, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(64, 3, 3, activation='relu'))
+        #model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 3)))
+        model.add(Convolution2D(64, 3, 3, activation='relu', input_shape=(224,224,3), trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(64, 3, 3, activation='relu', trainable=False))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2), trainable=False))
+
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(128, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(128, 3, 3, activation='relu', trainable=False))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(128, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(128, 3, 3, activation='relu'))
-        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(256, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(256, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(256, 3, 3, activation='relu', trainable=False))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2), trainable=False))
 
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(256, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(256, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(256, 3, 3, activation='relu'))
-        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(512, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(512, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(512, 3, 3, activation='relu', trainable=False))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2), trainable=False))
 
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(512, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(512, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(512, 3, 3, activation='relu'))
-        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(512, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(512, 3, 3, activation='relu', trainable=False))
+        #model.add(ZeroPadding2D((1, 1)))
+        model.add(Convolution2D(512, 3, 3, activation='relu', trainable=False))
+        model.add(MaxPooling2D((2, 2), strides=(2, 2), trainable=False))
 
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(512, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(512, 3, 3, activation='relu'))
-        model.add(ZeroPadding2D((1, 1)))
-        model.add(Convolution2D(512, 3, 3, activation='relu'))
-        model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+        model.add(Flatten(trainable=False))
+        model.add(Dense(4096, activation='relu', trainable=False))
+       # model.add(Dropout(0.5))
+        model.add(Dense(4096, activation='relu', trainable=True))
+       # model.add(Dropout(0.5))
+        #model.add(Dense(1000, activation='softmax'))
 
-        model.add(Flatten())
-        model.add(Dense(4096, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(4096, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(1000, activation='softmax'))
-
-        model.load_weights('VGG16.h5')
+        model.load_weights('VGG16.h5', by_name=True)
+        model.layers.pop()
+        model.layers.pop()
+        model.outputs = [model.layers[-1].output]
+        model.layers[-1].outbound_nodes = []
+        plot(model, to_file='model2.png')
         return model
 
     def create_model(self, ret_model = False):
@@ -198,33 +205,31 @@ class ImageCaptioner():
         :return:
         '''
         # LOADING THE VGG16 MODEL PRETRAINED ON IMAGENET
+
         modelV = self.createVGG16()
-        modelV.trainable = False
-        # DISCARD LAST 2 LAYERS
-        modelV.layers.pop()
-        modelV.layers.pop()
+        modelV.add(RepeatVector(self.max_cap_len))
 
         print 'LOADED VISION MODULE'
 
         modelL = Sequential()
         # CONVERTING THE INPUT PARTIAL CAPTION INDEX VECTOR TO DENSE VECTOR REPRESENTATION
-        modelL.add(Embedding(self.vocab_size, 256, input_length=self.max_cap_len))
-        modelL.add(LSTM(128,return_sequences=True))
-        modelL.add(TimeDistributed(Dense(128)))
+        modelL.add(Embedding(self.vocab_size, 1000, input_length=self.max_cap_len))
+        #modelL.add(LSTM(1000,return_sequences=True))
+        #modelL.add(TimeDistributed(Dense(256)))
 
         print 'LOADED LANGUAGE MODULE'
 
         # REPEATING IMAGE VECTOR TO TURN INTO A SEQUENCE
-        modelV.add(RepeatVector(self.max_cap_len))
+
 
         print 'LOADED REPEAT MODULE'
 
         model = Sequential()
-        model.add(Merge([modelV, modelL], mode='concat', concat_axis=-1))
+        model.add(Merge([modelV, modelL], mode='concat'))
         # ENCODING THE VECTOR SEQ INTO A SINGLE VECTOR
         # WHICH WILL BE USED TO COMPUTE THE PROB DISTRIB OF THE NEXT WORD
         # IN THE CAPTION
-        model.add(LSTM(256,return_sequences=False))
+        model.add(LSTM(1000,return_sequences=False))
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
 
@@ -254,15 +259,21 @@ class ImageCaptioner():
         print 'LOADED CAPTIONING MODEL'
 
         print 'LOADING IMAGES'
-        images = self.loadImgs(0,5)
+        images = self.loadImgs(0,4)
         print 'LOADED IMAGES'
 
+        print images.shape
+        print self.partial_caps.shape
+        file = 'weights-improvement-{epoch:02d}-{loss:.4f}.hdf5'
+        checkpoint = ModelCheckpoint(file, monitor='loss', verbose=1, save_best_only=True, mode='min')
+        callbacks_list = [checkpoint]
         print 'STARTING TRAINING'
-        model.fit([images, self.partial_caps], self.next_words, batch_size=10, nb_epoch=10, verbose=2)
+        model.fit([images, self.partial_caps], self.next_words, batch_size=1, nb_epoch=20, verbose=2, callbacks=callbacks_list)
         print 'TRAINING COMPLETE'
         model.save('Models/WholeModel.hdf5', overwrite=True)
         model.save_weights('Models/Weights.h5',overwrite=True)
         print 'MODEL SAVED'
 
-#obj = ImageCaptioner()
-#obj.start_training()
+obj = ImageCaptioner()
+#obj.createVGG16()
+obj.start_training()
