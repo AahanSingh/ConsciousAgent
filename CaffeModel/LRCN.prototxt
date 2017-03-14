@@ -494,7 +494,7 @@ layer {
       min: -0.08
       max: 0.08
     }
-    bias_filer {
+    bias_filler {
       type: "constant"
       value: 0
     }
