@@ -495,7 +495,7 @@ layer {
 layer {
   name: "lstm1"
   type: "LSTM"
-  bottom: "reshaped_embedded_input"
+  bottom: "embedded_input"
   bottom: "clip"
   bottom: "fc8"
   top: "lstm1"
