@@ -4,7 +4,7 @@ import h5py
 
 def build_dataset():
 
-    token_path = "/Users/aahansingh/Development/Python/ConsciousAgent1/captions.txt"
+    token_path = "/home/ubuntu/ConsciousAgent/CaffeModel/captions.txt"
     df = pd.read_csv(token_path, delimiter = '\t')
     n_caps = df.shape[0]
     dataset = []
@@ -30,7 +30,7 @@ def build_dataset():
     return dataset
 
 def build_vocab():
-    token_path = "/Users/aahansingh/Development/Python/ConsciousAgent1/captions.txt"
+    token_path = "/home/ubuntu/ConsciousAgent/CaffeModel/captions.txt"
     df = pd.read_csv(token_path, delimiter='\t')
     n_caps = df.shape[0]
     captions = []
