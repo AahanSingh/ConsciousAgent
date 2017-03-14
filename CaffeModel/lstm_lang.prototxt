@@ -1,0 +1,141 @@
+name: "LRCN"
+# train data
+# image
+# captions
+layer{
+  name: "caption_data"
+  type: "HDF5Data"
+  top: "input"
+  top: "target"
+  top: "clip"
+  include: { phase: TRAIN }
+  hdf5_data_param {
+    source: "train_captions.txt"
+    batch_size: 40
+  }
+}
+
+# TEST ON TRAIN
+# captions
+layer{
+  name: "caption_data"
+  type: "HDF5Data"
+  top: "input"
+  top: "target"
+  top: "clip"
+  include: {
+    phase: TEST
+    stage: "test-on-train"
+  }
+  hdf5_data_param {
+    source: "train_captions.txt"
+    batch_size: 40
+  }
+}
+
+# LSTM PART STARTS HERE
+
+layer {
+  name: "embedding"
+  type: "Embed"
+  bottom: "input"
+  top: "embedded_input"
+  param{
+    lr_mult: 1
+  }
+  embed_param{
+    bias_term: false
+    input_dim: 8919
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+  }
+}
+#layer {
+ # name: "reshape_embedding"
+  #type: "Reshape"
+  #bottom: "embedded_input"
+  #top: "reshaped_embedded_input"
+  #reshape_param {
+  #  shape {
+  #   dim: 40
+  #    dim: 1
+  #    dim: 1000
+  #  }
+  #}
+#}
+layer {
+  name: "lstm1"
+  type: "LSTM"
+  bottom: "embedded_input"
+  bottom: "clip"
+  top: "lstm1"
+  recurrent_param{
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "predict"
+  type: "InnerProduct"
+  bottom: "lstm1"
+  top: "predict"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 8919
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+    #axis: 2
+  }
+}
+layer {
+  name: "cross_entropy_loss"
+  type: "SoftmaxWithLoss"
+  bottom: "target"
+  bottom: "predict"
+  top: "cross_entropy_loss"
+  loss_weight: 20
+  loss_param {
+    ignore_label: -1
+  }
+#  softmax_param {
+ #   axis: 2
+  #}
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "predict"
+  bottom: "target"
+  top: "accuracy"
+  include { phase: TEST }
+  accuracy_param {
+    #axis: 2
+    ignore_label: -1
+  }
+}
