@@ -32,7 +32,7 @@ layer{
   top: "clip"
   include: { phase: TRAIN }
   hdf5_data_param {
-    source: "train_captions.txt"
+    source: "train_captions_transpose.txt"
     batch_size: 40
   }
 }
@@ -73,7 +73,7 @@ layer{
     stage: "test-on-train"
   }
   hdf5_data_param {
-    source: "train_captions.txt"
+    source: "train_captions_transpose.txt"
     batch_size: 40
   }
 }

@@ -141,6 +141,19 @@ def build_training_set():
     f = open('train_captions.txt','w')
     f.write('train_captions.h5')
     f.close()
+
+    data['input'] = data['input'].T
+    data['target'] = data['target'].T
+    data['clip'] = data['clip'].T
+
+    with h5py.File('train_captions_transpose.h5','w') as f:
+        f['input'] = data['input']
+        f['target'] = data['target']
+        f['clip'] = data['clip']
+    f = open('train_captions_transpose.txt','w')
+    f.write('train_captions_transpose.h5')
+    f.close()
+
     print 'DONE'
 
 build_dataset()
