@@ -54,19 +54,6 @@ layer {
     }
   }
 }
-#layer {
- # name: "reshape_embedding"
-  #type: "Reshape"
-  #bottom: "embedded_input"
-  #top: "reshaped_embedded_input"
-  #reshape_param {
-  #  shape {
-  #   dim: 40
-  #    dim: 1
-  #    dim: 1000
-  #  }
-  #}
-#}
 layer {
   name: "lstm1"
   type: "LSTM"
@@ -110,7 +97,7 @@ layer {
       type: "constant"
       value: 0
     }
-    #axis: 2
+    axis: 2
   }
 }
 layer {
@@ -123,9 +110,9 @@ layer {
   loss_param {
     ignore_label: -1
   }
-#  softmax_param {
- #   axis: 2
-  #}
+  softmax_param {
+    axis: 2
+  }
 }
 layer {
   name: "accuracy"
@@ -135,7 +122,7 @@ layer {
   top: "accuracy"
   include { phase: TEST }
   accuracy_param {
-    #axis: 2
+    axis: 2
     ignore_label: -1
   }
 }

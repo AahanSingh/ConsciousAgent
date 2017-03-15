@@ -4,7 +4,7 @@ import h5py
 
 def build_dataset():
 
-    token_path = "/home/ubuntu/ConsciousAgent/CaffeModel/captions.txt"
+    token_path = "/Users/aahansingh/Development/Python/ConsciousAgent1/captions.txt"
     df = pd.read_csv(token_path, delimiter = '\t')
     n_caps = df.shape[0]
     dataset = []
@@ -25,12 +25,12 @@ def build_dataset():
             file.write("%s\t%s\n" % (w[0][:-2], w[1].lower()))
     with open('train_images.txt', 'wb') as file:
         for i, w in enumerate(dataset):
-            file.write("Flicker8k_Dataset/%s\n" % (w[0][:-2]))
+            file.write("Flicker8k_Dataset/%s\t%d\n" % (w[0][:-2],0))
     print 'DATASET SAVED'
     return dataset
 
 def build_vocab():
-    token_path = "/home/ubuntu/ConsciousAgent/CaffeModel/captions.txt"
+    token_path = "/Users/aahansingh/Development/Python/ConsciousAgent1/captions.txt"
     df = pd.read_csv(token_path, delimiter='\t')
     n_caps = df.shape[0]
     captions = []
@@ -132,16 +132,24 @@ def build_training_set():
     print 'Clip = (%d,%d)' % data['clip'].shape
 
     print 'SAVING TO HDF5'
+    file_names = []
     # WRITE TO H5 FILE. CAFFE TAKES 1 INPUT FOR HDF5 DATA LAYER:
     # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
-    with h5py.File('train_captions.h5','w') as f:
-        f['input'] = data['input']
-        f['target'] = data['target']
-        f['clip'] = data['clip']
-    f = open('train_captions.txt','w')
-    f.write('train_captions.h5')
-    f.close()
+    for i in range(0,6000,100):
+        file_name = 'train_captions%d.h5' % i
+        file_names.append(file_name)
+        with h5py.File(file_name,'w') as f:
+            f['input'] = data['input'][i:i+100,:].T
+            f['target'] = data['target'][i:i+100,:].T
+            f['clip'] = data['clip'][i:i+100,:].T
+        print 'SAVED %s' %file_name
 
+    f = open('train_captions.txt','w')
+    for filename in file_names:
+        f.write('%s\n'%filename)
+    f.close()
+    print 'DONE'
+'''
     data['input'] = data['input'].T
     data['target'] = data['target'].T
     data['clip'] = data['clip'].T
@@ -152,9 +160,9 @@ def build_training_set():
         f['clip'] = data['clip']
     f = open('train_captions_transpose.txt','w')
     f.write('train_captions_transpose.h5')
-    f.close()
+    f.close()'''
 
-    print 'DONE'
+
 
 build_dataset()
 build_vocab()
