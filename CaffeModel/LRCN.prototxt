@@ -17,7 +17,7 @@ layer {
   }
   image_data_param {
   source: "train_images.txt"
-  batch_size: 20
+  batch_size: 10
   new_height: 256
   new_width: 256
   }
@@ -55,7 +55,7 @@ layer {
   }
   image_data_param {
   source: "train_images.txt"
-  batch_size: 20
+  batch_size: 10
   new_height: 256
   new_width: 256
   }
