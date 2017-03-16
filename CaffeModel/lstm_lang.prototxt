@@ -103,8 +103,8 @@ layer {
 layer {
   name: "cross_entropy_loss"
   type: "SoftmaxWithLoss"
-  bottom: "target"
   bottom: "predict"
+  bottom: "target"
   top: "cross_entropy_loss"
   loss_weight: 20
   loss_param {

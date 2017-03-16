@@ -17,7 +17,7 @@ layer {
   }
   image_data_param {
   source: "train_images.txt"
-  batch_size: 1
+  batch_size: 100
   new_height: 256
   new_width: 256
   }
@@ -32,7 +32,7 @@ layer{
   include: { phase: TRAIN }
   hdf5_data_param {
     source: "train_captions.txt"
-    batch_size: 1
+    batch_size: 40
   }
 }
 
@@ -55,7 +55,7 @@ layer {
   }
   image_data_param {
   source: "train_images.txt"
-  batch_size: 1
+  batch_size: 100
   new_height: 256
   new_width: 256
   }
@@ -73,7 +73,7 @@ layer{
   }
   hdf5_data_param {
     source: "train_captions.txt"
-    batch_size: 1
+    batch_size: 40
   }
 }
 
@@ -536,22 +536,22 @@ layer {
       type: "constant"
       value: 0
     }
-    #axis: 2
+    axis: 2
   }
 }
 layer {
   name: "cross_entropy_loss"
   type: "SoftmaxWithLoss"
-  bottom: "target"
   bottom: "predict"
+  bottom: "target"
   top: "cross_entropy_loss"
   loss_weight: 20
   loss_param {
     ignore_label: -1
   }
-#  softmax_param {
- #   axis: 2
-  #}
+  softmax_param {
+    axis: 2
+  }
 }
 layer {
   name: "accuracy"
@@ -561,7 +561,7 @@ layer {
   top: "accuracy"
   include { phase: TEST }
   accuracy_param {
-    #axis: 2
+    axis: 2
     ignore_label: -1
   }
 }
