@@ -133,15 +133,16 @@ def build_training_set():
 
     print 'SAVING TO HDF5'
     file_names = []
+    batch_size = 20
     # WRITE TO H5 FILE. CAFFE TAKES 1 INPUT FOR HDF5 DATA LAYER:
     # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
-    for i in range(0,6000,100):
+    for i in range(0,6000,batch_size):
         file_name = 'train_captions%d.h5' % i
         file_names.append(file_name)
         with h5py.File(file_name,'w') as f:
-            f['input'] = data['input'][i:i+100,:].T
-            f['target'] = data['target'][i:i+100,:].T
-            f['clip'] = data['clip'][i:i+100,:].T
+            f['input'] = data['input'][i:i+batch_size,:].T
+            f['target'] = data['target'][i:i+batch_size,:].T
+            f['clip'] = data['clip'][i:i+batch_size,:].T
         print 'SAVED %s' %file_name
 
     f = open('train_captions.txt','w')
@@ -149,18 +150,6 @@ def build_training_set():
         f.write('%s\n'%filename)
     f.close()
     print 'DONE'
-'''
-    data['input'] = data['input'].T
-    data['target'] = data['target'].T
-    data['clip'] = data['clip'].T
-
-    with h5py.File('train_captions_transpose.h5','w') as f:
-        f['input'] = data['input']
-        f['target'] = data['target']
-        f['clip'] = data['clip']
-    f = open('train_captions_transpose.txt','w')
-    f.write('train_captions_transpose.h5')
-    f.close()'''
 
 
 
