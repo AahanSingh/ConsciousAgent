@@ -89,11 +89,13 @@ def build_training_set():
     # OBTAIN CAPTION FOR IMAGES :=> dataset[train_imgs[0][:-1]]  -1 due to \n at the end of the
     max_cap_len = 0
     train_captions = []
+    train_images = []
 
     # LOADING CAPTIONS
     for i in range(len(train_imgs)):
         for j, w in enumerate(dataset):
             if w[0] == train_imgs[i][:-1]:
+                train_images.append(w[0])
                 train_captions.append(w[1])
     numeric_train_captions = []
 
@@ -145,6 +147,11 @@ def build_training_set():
     f = open('train_captions.txt','w')
     for filename in file_names:
         f.write('%s\n'%filename)
+    f.close()
+
+    f = open('train_images.txt','w')
+    for filename in train_images:
+        f.write('Flicker8k_Dataset/%s\n'%filename)
     f.close()
     print 'DONE'
 
