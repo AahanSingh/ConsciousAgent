@@ -4,21 +4,17 @@ import h5py
 
 def build_dataset():
 
-    token_path = "/home/ubuntu/ConsciousAgent/CaffeModel/captions.txt"
+
+    token_path = "/Users/aahansingh/Development/Python/ConsciousAgent1/captions.txt"
     df = pd.read_csv(token_path, delimiter = '\t')
     n_caps = df.shape[0]
+    print n_caps
     dataset = []
     iterator = df.iterrows()
-    for i in range(0,n_caps,5):
-        max = 0
-        q = 0
-        for j in range(i, i+5):
-            p = iterator.next()
-            len = sum(c.isspace() for c in p[1][1]) + 1
-            if(len > max):
-                q = p
-                max = len
-        dataset.append((q[1][0],q[1][1]))
+    for i in range(0,n_caps):
+        p = iterator.next()
+        dataset.append((p[1][0],p[1][1]))
+    print len(dataset)
     # SAVE DATASET
     with open('dataset.txt', 'wb') as file:
         for i, w in enumerate(dataset):
@@ -26,17 +22,11 @@ def build_dataset():
                 print 'IT EXISTS REMOVING'
                 continue
             file.write("%s\t%s\n" % (w[0][:-2], w[1].lower()))
-    with open('train_images.txt', 'wb') as file:
-        for i, w in enumerate(dataset):
-            if w[0][:-2] == '2258277193_586949ec62.jpg.1':
-                print 'IT EXISTS REMOVING'
-                continue
-            file.write("Flicker8k_Dataset/%s \n" % (w[0][:-2]))
     print 'DATASET SAVED'
-    return dataset
+    #return dataset
 
 def build_vocab():
-    token_path = "/home/ubuntu/ConsciousAgent/CaffeModel/captions.txt"
+    token_path = "/Users/aahansingh/Development/Python/ConsciousAgent1/captions.txt"
     df = pd.read_csv(token_path, delimiter='\t')
     n_caps = df.shape[0]
     captions = []
@@ -76,19 +66,19 @@ def get_vocab():
     return wi
 
 def get_dataset():
-    wi = {}
+    wi = []
     with open('dataset.txt') as f:
         for line in f:
             (img, cap) = line.split('\t')
-            wi[img] = cap[:-1]
+            wi.append((img, cap[:-1]))
     return wi
 
 def build_training_set():
-
     print 'BUILDING DATA HDF5 FILE'
     # LOADING TRAINING DATA
-    dataset = get_dataset()
+    dataset = get_dataset()  # DATASET[0] = TUPLE OF IMG,CAPTION. DATASET[I][0] = IMAGE, [I][1]=CAPTION
 
+    print len(dataset)
     # CREATE DICTIONARY
     word_index = get_vocab()
 
@@ -102,14 +92,15 @@ def build_training_set():
 
     # LOADING CAPTIONS
     for i in range(len(train_imgs)):
-        train_captions.append(dataset[train_imgs[i][:-1]])
-
+        for j, w in enumerate(dataset):
+            if w[0] == train_imgs[i][:-1]:
+                train_captions.append(w[1])
     numeric_train_captions = []
 
     # CONVERT TO NUMERIC
     for i in range(len(train_captions)):
         caption = train_captions[i].strip().split()
-        if(len(caption)>max_cap_len):
+        if (len(caption) > max_cap_len):
             max_cap_len = len(caption)
         temp = []
         for j in range(len(caption)):
@@ -142,7 +133,7 @@ def build_training_set():
     batch_size = 10
     # WRITE TO H5 FILE. CAFFE TAKES 1 INPUT FOR HDF5 DATA LAYER:
     # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
-    for i in range(0,6000,batch_size):
+    for i in range(0,30000,batch_size):
         file_name = 'train_captions%d.h5' % i
         file_names.append(file_name)
         with h5py.File(file_name,'w') as f:
