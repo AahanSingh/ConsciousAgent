@@ -183,7 +183,7 @@ def gen_caption(vocab):
 
 
 def print_word(x,vocab):
-    for i in x[:10]:
+    for i in x:
         print vocab[i]
 
 def process_img(img_file):
@@ -208,3 +208,5 @@ net = caffe.Net('LRCN.deploy.prototxt', 'LRCNModel_iter_50000.caffemodel', caffe
 net.blobs['data'].reshape(*img.shape)
 
 caption,probs = predict_caption(1223,'not_')
+print_word(caption,vinv)
+
