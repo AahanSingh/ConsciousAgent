@@ -194,6 +194,26 @@ def process_img(img_file):
     img = img[np.newaxis, :, :, :]
     return img
 
+def gen_cap():
+	word = 1	
+	cum_sum=0.
+	preds = 0
+	sent = ""	
+	for _ in range(100):
+		if word==0:
+			break
+		print vinv[word]			
+		#word = raw_input("ENTER INDEX")
+		#word = int(word)
+		if word!=1:
+			cum_sum+= preds[word]		
+		preds = predict_single_word(img,word,output='probs')
+		top_10 = np.argsort(-preds)[:10] # HOLDS THE TOP 10 INDICES
+		#print top_10		
+		word = top_10[0]				
+		#print_word(top_10,vinv)
+		sent+=" "+vinv[word]
+	print cum_sum
 import os
 vocab = get_vocab()
 vinv = {}
@@ -201,12 +221,15 @@ vinv = {}
 for i, w in enumerate(vocab):
     vinv[vocab[w]] = w
 # OBTAIN IMAGE
-img_file = os.getcwd()+'/Flicker8k_Dataset/2436081047_bca044c1d3.jpg'
+img_file = os.getcwd()+'/girl.jpeg'
 img = process_img(img_file)
 
-net = caffe.Net('LRCN.deploy.prototxt', 'LRCNModel_iter_50000.caffemodel', caffe.TEST)
+net = caffe.Net('LRCN.deploy.prototxt', 'LRCNModel_iter_60000.caffemodel', caffe.TEST)
 net.blobs['data'].reshape(*img.shape)
 
-caption,probs = predict_caption(1223,'not_')
-print_word(caption,vinv)
-
+gen_cap()
+'''caption,probs = predict_caption(1223,'not_')
+print caption
+print vinv[1]
+print_word(caption[0],vinv)
+'''
