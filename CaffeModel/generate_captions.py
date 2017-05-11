@@ -164,6 +164,42 @@ def beam_search(beam_size, max_len = 40):
 	complete_beams_probs = complete_beams_probs[ind]
 	return copy, complete_beams_probs
 
+def save_file(filename,list):
+	with open(filename, 'wb') as file:
+		for word in list:
+			file.write("%s\n" %word)
+
+
+def create_lists(choice):
+	sentient = []
+	not_sentient = []
+	objects = []
+	non_objects = []
+	verbs = []
+	i = 0
+	if choice == 0: #0 = objects
+		for word in vocab:
+			'''
+			1 = object
+			0 = not object
+			-1 = exit
+			'''
+			x = raw_input("%d WORD = %s\nENTER 1:Object\t 0:Non Object\n"%(i,word))
+			x = int(x)
+			if x==1:
+				objects.append(word)
+			if x==0:
+				non_objects.append(word)
+			if x==-1:
+				save_file('objects.txt',objects)
+				save_file('non_objects.txt',non_objects)
+			i+=1
+		save_file('objects.txt',objects)
+		save_file('non_objects.txt',non_objects)	
+	if choice == 1:# VERBS
+		for word in vocab:
+			if 'ing' in word:
+				verbs.append(word)
 
 
 def print_sentence(x):
@@ -196,37 +232,136 @@ def gen_cap():
         top_10 = np.argsort(-preds)[:10] # HOLDS THE TOP 10 INDICES
         print top_10
         #word = top_10[0]
-        print_word(top_10,vinv)
+        print_sentence(top_10)
         sent+=" "+vinv[word]
     print sent
     print cum_sum
+def read_file(filename):
+    wi = []
+    with open(filename) as f:
+        for line in f:
+            wi.append(line)
+    for x in range(len(wi)):
+    	wi[x]=wi[x][:-1]
+    return wi
 
+def sentience_engine(sentence):
+	# sentence is the vector of ints
+	sentence = list(set(sentence))
+	sentient = read_file('/home/aahansingh/ConsciousAgent/sentient.txt')
+	non_sentient = read_file('/home/aahansingh/ConsciousAgent/non_sentient.txt')
+	fish = read_file('/home/aahansingh/ConsciousAgent/fish.txt')
+	human=read_file('/home/aahansingh/ConsciousAgent/human.txt')
+	human_groups=read_file('/home/aahansingh/ConsciousAgent/human_groups.txt')
+	plants = read_file('/home/aahansingh/ConsciousAgent/plants.txt')
+	plant_group = read_file('/home/aahansingh/ConsciousAgent/plant_group.txt')
+	animals = read_file('/home/aahansingh/ConsciousAgent/animals.txt')
+	animal_group = read_file('/home/aahansingh/ConsciousAgent/animal_group.txt')
+	motion = read_file('/home/aahansingh/ConsciousAgent/motion.txt')
+	static = read_file('/home/aahansingh/ConsciousAgent/static.txt')
+	fantasy = read_file('/home/aahansingh/ConsciousAgent/fantasy.txt')
+
+	# SENTIENCE DETECTION
+	for word in sentence:
+		result = ""
+		if word in sentient:
+			result+="Sentience Object Detected => "
+			if word in human:
+				result+="Human => "
+				if word in human_groups:
+					result+=" Group => "
+				result+=word
+				print result
+				continue
+			if word in fish:
+				result+="Fish => "+word
+				print result
+				continue
+			if word in plants:
+				result+="Plant => "
+				if word in plant_group:
+					result+="Group => "
+				result+=word
+				print result
+				continue
+			if word in animals:
+				result+="Animal => "
+				if word in animal_group:
+					result+="Group => "
+				result+=word
+				print result
+				continue
+			if word in fantasy:
+				result+="Fantasy Creature => "+word
+				print result
+				continue
+		if word in non_sentient:
+			result+="Non Sentient Object Detected => "+word
+			print result
+			continue
+	# MOTION DETECTION
+	'beach' in motion
+	for word in sentence:
+		result = ""
+		if word in motion:
+			result+='Motion Detected => '+word
+			print result
+			continue
+		if word in static:
+			result+='Objects Stationary => '+word
+			print result
+			continue
+
+'''
 vocab = get_vocab()
 vinv = {}
 # OBTAIN DICTIONARY
 for i, w in enumerate(vocab):
     vinv[vocab[w]] = w
 # OBTAIN IMAGE
-img_file = os.getcwd()+'/man.jpg'
+image_locn = raw_input("Input Image Name: ")
+img_file = os.getcwd()+"/"+image_locn
 img = process_img(img_file)
+
 
 net = caffe.Net('LRCN.deploy.prototxt', 'LRCN_Finetune_Model_iter_30000.caffemodel', caffe.TEST)
 net.blobs['data'].reshape(*img.shape)
-
+#create_lists(0)
 #gen_cap()
+
 start_time = time.time()
 beam_size = int(raw_input("ENTER BEAM SIZE: "))
 beams,probs = beam_search(beam_size)
 #print beams.shape
 #print probs.shape
-sent = ""
-'''for i in beams:
+'''
+
+'''
+for i in beams:
     for j in i:
         print vinv[j]
+'''
+'''
+print '*****************************************************************************************'
+print 'Top %d Caption Probabilities: ' %beam_size
 for i in range(beam_size):
-	print probs[i][-1]'''
+	print probs[i][-1]
+print '\nTop %d Captions: '%beam_size
 for sent in beams:
 	print_sentence(sent)
 #print probs[0][-1]
-print time.time()-start_time
-os.system("play -n synth 2 sine 800 vol 0.5")
+print '\nBest Caption: '
+print_sentence(beams[0])
+beam = []
+for i in beams[0]:
+	beam.append(vinv[i])
+#os.system("play -n synth 2 sine 800 vol 0.5")
+print '\nSentience Engine Running'
+'''
+beam=['a','man','is','walking','on','the','beach']
+sentience_engine(beam)
+print '\nSentience Detection Complete'
+print '\nTotal Time Taken'
+#print time.time()-start_time
+if __name__=='__main__':
+	print 'Hello'
