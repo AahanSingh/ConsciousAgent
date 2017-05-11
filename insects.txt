@@ -1,0 +1,12 @@
+critter
+beetle
+butterfly
+worm
+bee
+caterpillar
+centipede
+bug
+ant
+flies
+insect
+flea

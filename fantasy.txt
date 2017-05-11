@@ -1,0 +1,13 @@
+werewolf
+troll
+zombie
+fairy
+vampire
+devil
+ghost
+batman
+monster
+mermaid
+dragon
+god
+elf
