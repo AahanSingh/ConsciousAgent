@@ -126,6 +126,8 @@ def build_training_set(own_set=False):
     for i in range(len(numeric_train_captions)):
         numeric_train_captions[i] = [word_index['<START>']] + numeric_train_captions[i] + [word_index['<END>']]
         diff = max_cap_len - len(numeric_train_captions[i])
+        if own_set:
+            diff = 40 - len(numeric_train_captions[i])
         input = numeric_train_captions[i] + [-1] * diff
         clip = [0] + [1]*(len(numeric_train_captions[i])-1) + [0]*diff
         target = numeric_train_captions[i][1:] + [-1] * (diff+1)
@@ -143,12 +145,12 @@ def build_training_set(own_set=False):
 
     print 'SAVING TO HDF5'
     file_names = []
-    batch_size = 4
+    batch_size = 10
     # WRITE TO H5 FILE. CAFFE TAKES 1 INPUT FOR HDF5 DATA LAYER:
     # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
     # FLICKR8K RANGE=0,30000 BATCH SIZE =10
-    # OWN DATASET RANGE = 0,164 BATCH SIZE = 4
-    for i in range(0,142,batch_size):
+    # OWN DATASET RANGE = 0,160 BATCH SIZE = 10
+    for i in range(0,160,batch_size):
         file_name = 'train_captions%d.h5' % i
         file_names.append(file_name)
         with h5py.File(file_name,'w') as f:
