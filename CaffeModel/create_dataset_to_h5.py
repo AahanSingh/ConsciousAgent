@@ -67,7 +67,6 @@ def get_vocab():
 
 def get_dataset(own_set=False):
     wi = []
-    
     if own_set:
         with open('DATASET/dataset.txt') as f:
             for line in f:
@@ -91,10 +90,9 @@ def build_training_set(own_set=False):
     word_index = get_vocab()
 
     # IMPORT TRAIN
-
     with open('Flickr8k_text/Flickr_8k.trainImages.txt') as f:
         train_imgs = f.readlines()
-
+    
     if own_set:
         with open('DATASET/training_images.txt') as f:
             train_imgs = f.readlines()
@@ -145,10 +143,12 @@ def build_training_set(own_set=False):
 
     print 'SAVING TO HDF5'
     file_names = []
-    batch_size = 10
+    batch_size = 4
     # WRITE TO H5 FILE. CAFFE TAKES 1 INPUT FOR HDF5 DATA LAYER:
     # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
-    for i in range(0,30000,batch_size):
+    # FLICKR8K RANGE=0,30000 BATCH SIZE =10
+    # OWN DATASET RANGE = 0,164 BATCH SIZE = 4
+    for i in range(0,142,batch_size):
         file_name = 'train_captions%d.h5' % i
         file_names.append(file_name)
         with h5py.File(file_name,'w') as f:
