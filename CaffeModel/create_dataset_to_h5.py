@@ -65,26 +65,39 @@ def get_vocab():
             wi[word] = int(index)
     return wi
 
-def get_dataset():
+def get_dataset(own_set=False):
     wi = []
+    
+    if own_set:
+        with open('DATASET/dataset.txt') as f:
+            for line in f:
+                (img, cap) = line.split('\t')
+                wi.append((img, cap[:-1]))
+        return wi
+
     with open('dataset.txt') as f:
         for line in f:
             (img, cap) = line.split('\t')
             wi.append((img, cap[:-1]))
     return wi
 
-def build_training_set():
+def build_training_set(own_set=False):
     print 'BUILDING DATA HDF5 FILE'
     # LOADING TRAINING DATA
-    dataset = get_dataset()  # DATASET[0] = TUPLE OF IMG,CAPTION. DATASET[I][0] = IMAGE, [I][1]=CAPTION
+    dataset = get_dataset(own_set)  # DATASET[0] = TUPLE OF IMG,CAPTION. DATASET[I][0] = IMAGE, [I][1]=CAPTION
 
     print len(dataset)
     # CREATE DICTIONARY
     word_index = get_vocab()
 
     # IMPORT TRAIN
+
     with open('Flickr8k_text/Flickr_8k.trainImages.txt') as f:
         train_imgs = f.readlines()
+
+    if own_set:
+        with open('DATASET/training_images.txt') as f:
+            train_imgs = f.readlines()
 
     # OBTAIN CAPTION FOR IMAGES :=> dataset[train_imgs[0][:-1]]  -1 due to \n at the end of the
     max_cap_len = 0
@@ -149,14 +162,19 @@ def build_training_set():
         f.write('%s\n'%filename)
     f.close()
 
-    f = open('train_images.txt','w')
-    for filename in train_images:
-        f.write('Flicker8k_Dataset/%s\n'%filename)
-    f.close()
+    if own_set:
+        f = open('train_images.txt','w')
+        for filename in train_images:
+            f.write('DATASET/%s\n'%filename)
+        f.close()
+    else:
+        f = open('train_images.txt','w')
+        for filename in train_images:
+            f.write('Flicker8k_Dataset/%s\n'%filename)
+        f.close()
+
     print 'DONE'
-
-
 
 build_dataset()
 build_vocab()
-build_training_set()
+build_training_set(True)
