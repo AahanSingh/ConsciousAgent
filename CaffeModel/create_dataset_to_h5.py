@@ -94,10 +94,10 @@ def build_training_set(own_set=False):
         train_imgs = f.readlines()
     
     if own_set:
-        with open('DATASET/training_images.txt') as f:
+        with open('DATASET/training_imagesJ.txt') as f:
             train_imgs = f.readlines()
 
-    # OBTAIN CAPTION FOR IMAGES :=> dataset[train_imgs[0][:-1]]  -1 due to \n at the end of the
+    # OBTAIN CAPTION FOR IMAGES :=> dataset[train_imgs[0][:-1]]  -1 due to \n at the end of the line
     max_cap_len = 0
     train_captions = []
     train_images = []
@@ -150,7 +150,8 @@ def build_training_set(own_set=False):
     # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
     # FLICKR8K RANGE=0,30000 BATCH SIZE =10
     # OWN DATASET RANGE = 0,160 BATCH SIZE = 10
-    for i in range(0,160,batch_size):
+    # 0->120 WHEN VALIDATION SET IS USED
+    for i in range(0,120,batch_size):
         file_name = 'train_captions%d.h5' % i
         file_names.append(file_name)
         with h5py.File(file_name,'w') as f:
@@ -177,6 +178,105 @@ def build_training_set(own_set=False):
 
     print 'DONE'
 
-build_dataset()
-build_vocab()
+
+def build_validation_set(own_set=False):
+    print 'BUILDING DATA HDF5 FILE'
+    # LOADING TRAINING DATA
+    dataset = get_dataset(own_set)  # DATASET[0] = TUPLE OF IMG,CAPTION. DATASET[I][0] = IMAGE, [I][1]=CAPTION
+
+    print len(dataset)
+    # CREATE DICTIONARY
+    word_index = get_vocab()
+
+    # IMPORT TRAIN
+    with open('Flickr8k_text/Flickr_8k.trainImages.txt') as f:
+        train_imgs = f.readlines()
+    
+    if own_set:
+        with open('DATASET/validation_images.txt') as f:
+            train_imgs = f.readlines()
+
+    # OBTAIN CAPTION FOR IMAGES :=> dataset[train_imgs[0][:-1]]  -1 due to \n at the end of the line
+    max_cap_len = 0
+    train_captions = []
+    train_images = []
+
+    # LOADING CAPTIONS
+    for i in range(len(train_imgs)):
+        for j, w in enumerate(dataset):
+            if w[0] == train_imgs[i][:-1]:
+                train_images.append(w[0])
+                train_captions.append(w[1])
+    numeric_train_captions = []
+
+    # CONVERT TO NUMERIC
+    for i in range(len(train_captions)):
+        caption = train_captions[i].strip().split()
+        if (len(caption) > max_cap_len):
+            max_cap_len = len(caption)
+        temp = []
+        for j in range(len(caption)):
+            temp.append(word_index[caption[j]])
+        numeric_train_captions.append(temp)
+
+    max_cap_len+=2
+    # PREPEND WITH <START> AND APPEND WITH <END>
+    data = {'input':[],'target':[],'clip':[]}
+    for i in range(len(numeric_train_captions)):
+        numeric_train_captions[i] = [word_index['<START>']] + numeric_train_captions[i] + [word_index['<END>']]
+        diff = max_cap_len - len(numeric_train_captions[i])
+        if own_set:
+            diff = 40 - len(numeric_train_captions[i])
+        input = numeric_train_captions[i] + [-1] * diff
+        clip = [0] + [1]*(len(numeric_train_captions[i])-1) + [0]*diff
+        target = numeric_train_captions[i][1:] + [-1] * (diff+1)
+        data['input'].append(input)
+        data['target'].append(target)
+        data['clip'].append(clip)
+
+    data['input'] = np.asarray(data['input'])
+    data['target'] = np.asarray(data['target'])
+    data['clip'] = np.asarray(data['clip'])
+
+    print 'Input = (%d,%d)'%data['input'].shape
+    print 'Target = (%d,%d)' % data['target'].shape
+    print 'Clip = (%d,%d)' % data['clip'].shape
+
+    print 'SAVING TO HDF5'
+    file_names = []
+    batch_size = 10
+    # WRITE TO H5 FILE. CAFFE TAKES 1 INPUT FOR HDF5 DATA LAYER:
+    # THE TXT FILE CONTAINING LOCAITON OF H5 FILE
+    # FLICKR8K RANGE=0,30000 BATCH SIZE =10
+    # OWN DATASET RANGE = 0,160 BATCH SIZE = 10
+    for i in range(0,40,batch_size):
+        file_name = 'val_captions%d.h5' % i
+        file_names.append(file_name)
+        with h5py.File(file_name,'w') as f:
+            f['input'] = data['input'][i:i+batch_size,:].T
+            f['target'] = data['target'][i:i+batch_size,:].T
+            f['clip'] = data['clip'][i:i+batch_size,:].T
+        print 'SAVED %s' %file_name
+
+    f = open('val_captions.txt','w')
+    for filename in file_names:
+        f.write('%s\n'%filename)
+    f.close()
+
+    if own_set:
+        f = open('val_images.txt','w')
+        for filename in train_images:
+            f.write('DATASET/%s\n'%filename)
+        f.close()
+    else:
+        f = open('train_images.txt','w')
+        for filename in train_images:
+            f.write('Flicker8k_Dataset/%s\n'%filename)
+        f.close()
+
+    print 'DONE'
+
+#build_dataset()
+#build_vocab()
 build_training_set(True)
+build_validation_set(True)

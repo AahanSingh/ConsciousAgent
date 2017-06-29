@@ -1,5 +1,5 @@
 net: "LRCN.prototxt"
-test_state: { stage: 'test-on-train' }
+test_state: { stage: 'test-on-val' }
 test_iter: 25
 test_interval: 100
 base_lr: 0.001

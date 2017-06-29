@@ -77,6 +77,47 @@ layer{
   }
 }
 
+# TEST ON VAL
+layer {
+  name: "image_data"
+  type: "ImageData"
+  top: "data"
+  top: "label"
+  include { 
+    phase: TEST
+    stage: "test-on-val"
+  }
+  transform_param {
+    mirror: true
+    crop_size:224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  image_data_param {
+  source: "val_images.txt"
+  batch_size: 10
+  new_height: 256
+  new_width: 256
+  }
+}
+# captions
+layer{
+  name: "caption_data"
+  type: "HDF5Data"
+  top: "input"
+  top: "target"
+  top: "clip"
+  include: {
+    phase: TEST
+    stage: "test-on-val"
+  }
+  hdf5_data_param {
+    source: "val_captions.txt"
+    batch_size: 40
+  }
+}
+
 layer {
   name: "silence"
   type: "Silence"
