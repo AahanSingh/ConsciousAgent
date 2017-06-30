@@ -206,7 +206,7 @@ def print_sentence(x):
     s = ""
     for i in x:
         s+=" "+vinv[i]
-    print s
+    return s
 def process_img(img_file):
     img = Image.open(img_file)
     img = img.resize((224, 224), Image.NEAREST)
@@ -248,34 +248,36 @@ def read_file(filename):
 def sentience_engine(sentence):
 	# sentence is the vector of ints
 	sentence = list(set(sentence))
-	sentient = read_file('/home/aahansingh/ConsciousAgent/sentient.txt')
-	non_sentient = read_file('/home/aahansingh/ConsciousAgent/non_sentient.txt')
-	fish = read_file('/home/aahansingh/ConsciousAgent/fish.txt')
-	human=read_file('/home/aahansingh/ConsciousAgent/human.txt')
-	human_groups=read_file('/home/aahansingh/ConsciousAgent/human_groups.txt')
-	plants = read_file('/home/aahansingh/ConsciousAgent/plants.txt')
-	plant_group = read_file('/home/aahansingh/ConsciousAgent/plant_group.txt')
-	animals = read_file('/home/aahansingh/ConsciousAgent/animals.txt')
-	animal_group = read_file('/home/aahansingh/ConsciousAgent/animal_group.txt')
-	motion = read_file('/home/aahansingh/ConsciousAgent/motion.txt')
-	static = read_file('/home/aahansingh/ConsciousAgent/static.txt')
-	fantasy = read_file('/home/aahansingh/ConsciousAgent/fantasy.txt')
+	sentient = read_file('/home/ubuntu/ConsciousAgent/sentient.txt')
+	non_sentient = read_file('/home/ubuntu/ConsciousAgent/non_sentient.txt')
+	fish = read_file('/home/ubuntu/ConsciousAgent/fish.txt')
+	human=read_file('/home/ubuntu/ConsciousAgent/human.txt')
+	human_groups=read_file('/home/ubuntu/ConsciousAgent/human_groups.txt')
+	plants = read_file('/home/ubuntu/ConsciousAgent/plants.txt')
+	plant_group = read_file('/home/ubuntu/ConsciousAgent/plant_group.txt')
+	animals = read_file('/home/ubuntu/ConsciousAgent/animals.txt')
+	animal_group = read_file('/home/ubuntu/ConsciousAgent/animal_group.txt')
+	motion = read_file('/home/ubuntu/ConsciousAgent/motion.txt')
+	static = read_file('/home/ubuntu/ConsciousAgent/static.txt')
+	fantasy = read_file('/home/ubuntu/ConsciousAgent/fantasy.txt')
 
 	# SENTIENCE DETECTION
 	for word in sentence:
 		result = ""
 		if word in sentient:
-			result+="Sentience Object Detected => "
+			result+="Sentient Object Detected => "
 			if word in human:
 				result+="Human => "
 				if word in human_groups:
 					result+=" Group => "
 				result+=word
 				print result
+				file2.write(result+'\n')
 				continue
 			if word in fish:
 				result+="Fish => "+word
 				print result
+				file2.write(result+'\n')
 				continue
 			if word in plants:
 				result+="Plant => "
@@ -283,6 +285,7 @@ def sentience_engine(sentence):
 					result+="Group => "
 				result+=word
 				print result
+				file2.write(result+'\n')
 				continue
 			if word in animals:
 				result+="Animal => "
@@ -290,14 +293,17 @@ def sentience_engine(sentence):
 					result+="Group => "
 				result+=word
 				print result
+				file2.write(result+'\n')
 				continue
 			if word in fantasy:
 				result+="Fantasy Creature => "+word
 				print result
+				file2.write(result+'\n')
 				continue
 		if word in non_sentient:
 			result+="Non Sentient Object Detected => "+word
 			print result
+			file2.write(result+'\n')
 			continue
 	# MOTION DETECTION
 	'beach' in motion
@@ -306,62 +312,83 @@ def sentience_engine(sentence):
 		if word in motion:
 			result+='Motion Detected => '+word
 			print result
+			file2.write(result+'\n')
 			continue
 		if word in static:
 			result+='Objects Stationary => '+word
 			print result
+			file2.write(result+'\n')
 			continue
 
-'''
+start_time = time.time()
+net = caffe.Net('LRCN.deploy.prototxt', 'LRCN_Custom_dataset_Model_iter_240.caffemodel', caffe.TEST)
+net.blobs['data'].reshape(*img.shape)
+
 vocab = get_vocab()
 vinv = {}
 # OBTAIN DICTIONARY
 for i, w in enumerate(vocab):
     vinv[vocab[w]] = w
-# OBTAIN IMAGE
-image_locn = raw_input("Input Image Name: ")
-img_file = os.getcwd()+"/"+image_locn
-img = process_img(img_file)
 
+file1 = open('output.txt','a+')
+file2 = open('output_complete.txt','a+')
 
-net = caffe.Net('LRCN.deploy.prototxt', 'LRCN_Finetune_Model_iter_30000.caffemodel', caffe.TEST)
-net.blobs['data'].reshape(*img.shape)
-#create_lists(0)
-#gen_cap()
+for i in range(1,50):
+	# OBTAIN IMAGE
+	#image_locn = raw_input("Input Image Name: ")
+	image_locn='TEST/test%d.jpg' % i
+	img_file = os.getcwd()+"/"+image_locn
+	img = process_img(img_file)
 
-start_time = time.time()
-beam_size = int(raw_input("ENTER BEAM SIZE: "))
-beams,probs = beam_search(beam_size)
-#print beams.shape
-#print probs.shape
-'''
+	#create_lists(0)
+	#gen_cap()
 
-'''
-for i in beams:
-    for j in i:
-        print vinv[j]
-'''
-'''
-print '*****************************************************************************************'
-print 'Top %d Caption Probabilities: ' %beam_size
-for i in range(beam_size):
-	print probs[i][-1]
-print '\nTop %d Captions: '%beam_size
-for sent in beams:
-	print_sentence(sent)
-#print probs[0][-1]
-print '\nBest Caption: '
-print_sentence(beams[0])
-beam = []
-for i in beams[0]:
-	beam.append(vinv[i])
-#os.system("play -n synth 2 sine 800 vol 0.5")
-print '\nSentience Engine Running'
-'''
-beam=['a','man','is','walking','on','the','beach']
-sentience_engine(beam)
-print '\nSentience Detection Complete'
-print '\nTotal Time Taken'
-#print time.time()-start_time
-if __name__=='__main__':
-	print 'Hello'
+	#beam_size = int(raw_input("ENTER BEAM SIZE: "))
+	beam_size=5
+	beams,probs = beam_search(beam_size)
+	#print beams.shape
+	#print probs.shape
+	'''
+	'''
+	
+	n_caps = []
+	file1.write('\n'+image_locn+'\n')
+	file2.write('\n'+image_locn+'\n')
+	for i in beams:
+	    for j in i:
+	        print vinv[j]
+	'''
+	'''
+	print '*****************************************************************************************'
+	print 'Top %d Caption Probabilities: ' %beam_size
+	file1.write('Top %d Caption Probabilities: \n' %beam_size)
+	for i in range(beam_size):
+		print probs[i][-1]
+		file1.write(str(probs[i][-1])+'\n')
+	
+	print '\nTop %d Captions: '%beam_size
+	for sent in beams:
+		temp=print_sentence(sent)+"\n"
+		n_caps.append(temp)
+
+	for i in n_caps:
+		file1.write(i)
+
+	#print probs[0][-1]
+	print '\nBest Caption: '
+	best_cap = print_sentence(beams[0])+'\n'
+	file2.write(best_cap)
+	beam = []
+	for i in beams[0]:
+		beam.append(vinv[i])
+	#os.system("play -n synth 2 sine 800 vol 0.5")
+	print '\nSentience Engine Running'
+	file2.write('\nSentience Engine Running')
+	sentience_engine(beam)
+	print '\nSentience Detection Complete'
+	file2.write('\nSentience Engine Complete')
+	print '\nTotal Time Taken'
+	print time.time()-start_time
+
+file1.close()
+file2.close()
