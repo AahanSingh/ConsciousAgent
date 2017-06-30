@@ -151,7 +151,7 @@ def build_training_set(own_set=False):
     # FLICKR8K RANGE=0,30000 BATCH SIZE =10
     # OWN DATASET RANGE = 0,160 BATCH SIZE = 10
     # 0->120 WHEN VALIDATION SET IS USED
-    for i in range(0,120,batch_size):
+    for i in range(0,30000,batch_size):
         file_name = 'train_captions%d.h5' % i
         file_names.append(file_name)
         with h5py.File(file_name,'w') as f:
@@ -276,7 +276,7 @@ def build_validation_set(own_set=False):
 
     print 'DONE'
 
-#build_dataset()
-#build_vocab()
-build_training_set(True)
-build_validation_set(True)
+build_dataset()
+build_vocab()
+build_training_set()
+#build_validation_set(True)
