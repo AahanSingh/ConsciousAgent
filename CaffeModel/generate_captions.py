@@ -322,7 +322,6 @@ def sentience_engine(sentence):
 
 start_time = time.time()
 net = caffe.Net('LRCN.deploy.prototxt', 'LRCN_Custom_dataset_Model_iter_240.caffemodel', caffe.TEST)
-net.blobs['data'].reshape(*img.shape)
 
 vocab = get_vocab()
 vinv = {}
@@ -339,6 +338,7 @@ for i in range(1,50):
 	image_locn='TEST/test%d.jpg' % i
 	img_file = os.getcwd()+"/"+image_locn
 	img = process_img(img_file)
+	net.blobs['data'].reshape(*img.shape)
 
 	#create_lists(0)
 	#gen_cap()
