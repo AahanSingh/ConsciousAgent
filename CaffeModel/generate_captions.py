@@ -7,6 +7,8 @@ from PIL import Image
 import time
 import os
 
+caffe.set_mode_gpu()
+
 def predict_single_word(previous_word,output='probs'):#def predict_single_word(image,previous_word,output='probs'):
     image = img
     clip = 0 if previous_word==1 else 1
@@ -207,6 +209,8 @@ def print_sentence(x):
     for i in x:
         s+=" "+vinv[i]
     return s
+    print s
+
 def process_img(img_file):
     img = Image.open(img_file)
     img = img.resize((224, 224), Image.NEAREST)
@@ -332,6 +336,8 @@ for i, w in enumerate(vocab):
 file1 = open('output.txt','a+')
 file2 = open('output_complete.txt','a+')
 
+
+'''
 for i in range(1,50):
 	# OBTAIN IMAGE
 	#image_locn = raw_input("Input Image Name: ")
@@ -394,6 +400,60 @@ for i in range(1,50):
 	print 'IMAGE %d COMPLETE' % i
 	print '*****************************************************************************************'
 	print '*****************************************************************************************'
-
+'''
 file1.close()
 file2.close()
+
+# OBTAIN IMAGE
+image_locn = raw_input("Input Image Name: ")
+img_file = os.getcwd()+"/"+image_locn
+img = process_img(img_file)
+net.blobs['data'].reshape(*img.shape)
+
+#create_lists(0)
+#gen_cap()
+
+beam_size = int(raw_input("ENTER BEAM SIZE: "))
+
+beams,probs = beam_search(beam_size)
+#print beams.shape
+#print probs.shape
+'''
+'''
+
+n_caps = []
+for i in beams:
+    for j in i:
+        print vinv[j]
+'''
+'''
+print '*****************************************************************************************'
+print 'Top %d Caption Probabilities: ' %beam_size
+file1.write('Top %d Caption Probabilities: \n' %beam_size)
+for i in range(beam_size):
+	print probs[i][-1]
+
+print '\nTop %d Captions: '%beam_size
+for sent in beams:
+	temp=print_sentence(sent)+"\n"
+	n_caps.append(temp)
+
+#print probs[0][-1]
+print '\nBest Caption: '
+best_cap = print_sentence(beams[0])+'\n'
+beam = []
+for i in beams[0]:
+	beam.append(vinv[i])
+#os.system("play -n synth 2 sine 800 vol 0.5")
+print '\nSentience Engine Running'
+file2.write('\nSentience Engine Running')
+sentience_engine(beam)
+print '\nSentience Detection Complete'
+file2.write('\nSentience Engine Complete')
+print '\nTotal Time Taken'
+print time.time()-start_time
+print '*****************************************************************************************'
+print '*****************************************************************************************'
+print 'IMAGE %d COMPLETE' % i
+print '*****************************************************************************************'
+print '*****************************************************************************************'
